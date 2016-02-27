@@ -116,14 +116,14 @@ add_custom_command(TARGET ${TARGET}.elf POST_BUILD
 
 # Start debugging with GDB (openocd needs to run in background)
 add_custom_target(gdb
-    COMMAND ${CROSS_TARGET_TRIPLET}gdb -ex 'target remote localhost:3333' -ex 'monitor reset init' ${TARGET}.elf
+    COMMAND ${CROSS_TARGET_TRIPLET}gdb -x ${BASE_DIR}/gdb/gdb.cfg ${TARGET}.elf
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS ${TARGET}.elf
 )
 
 # Flash the previously built firmware to the target (openocd needs to run in background)
 add_custom_target(flash
-    COMMAND ${CROSS_TARGET_TRIPLET}gdb --batch -ex 'target remote localhost:3333' -ex 'monitor reset init' -ex 'monitor program ${TARGET}.hex verify reset'
+    COMMAND ${CROSS_TARGET_TRIPLET}gdb --batch -x ${BASE_DIR}/gdb/gdb.cfg -ex 'monitor program ${TARGET}.hex verify reset'
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS ${TARGET}.elf
 )
