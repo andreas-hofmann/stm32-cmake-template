@@ -35,10 +35,6 @@ set(LINKER_SCRIPT "${BASE_DIR}/scripts/linker.ld")
 # E.g. for an STM32F4-Discovery dev-board:
 set(OPENOCD_CFG "/usr/share/openocd/scripts/board/stm32f4discovery.cfg")
 
-# Fill in the address offset for the device flash for programming.
-# Example value for an STM32F4:
-set(FLASH_OFFSET "0x08000000")
-
 # Definitions {{{
 
 # We're not using add_definitions() here, since this would break the calls to the assembler.
@@ -110,7 +106,7 @@ add_executable(${TARGET}.elf ${SOURCES} ${HEADERS})
 
 # Create a binary from the elf
 add_custom_command(TARGET ${TARGET}.elf POST_BUILD
-    COMMAND ${CROSS_TARGET_TRIPLET}objcopy -O binary ${TARGET}.elf ${TARGET}.bin
+    COMMAND ${CROSS_TARGET_TRIPLET}objcopy -Oihex ${TARGET}.elf ${TARGET}.hex
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
@@ -127,7 +123,7 @@ add_custom_target(gdb
 
 # Flash the previously built firmware to the target (openocd needs to run in background)
 add_custom_target(flash
-    COMMAND ${CROSS_TARGET_TRIPLET}gdb --batch -ex 'target remote localhost:3333' -ex 'monitor reset init' -ex 'monitor program ${TARGET}.bin verify reset ${FLASH_OFFSET}'
+    COMMAND ${CROSS_TARGET_TRIPLET}gdb --batch -ex 'target remote localhost:3333' -ex 'monitor reset init' -ex 'monitor program ${TARGET}.hex verify reset'
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS ${TARGET}.elf
 )
